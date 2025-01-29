@@ -2,7 +2,6 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
-import "./db/db.js";
 import { Env } from "./constants/env.js";
 import { errorHandlerMiddleware } from "./middlewares/error-handler-middleware.js";
 import { loggerMiddleware } from "./middlewares/logger-middleware.js";

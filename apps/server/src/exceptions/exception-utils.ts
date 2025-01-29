@@ -1,7 +1,7 @@
 import { HTTPException } from "hono/http-exception";
 import { ZodError } from "zod";
 import { CustomException } from "../exceptions/custom-exception.js";
-import { CommonResponse } from "../types/common-type.js";
+import { CommonResponse } from "../types/common.type.js";
 
 const DEFAULT_ERROR = "Something Went Wrong";
 
