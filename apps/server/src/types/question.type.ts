@@ -5,6 +5,10 @@ export type GenerateQuestionsRequest = {
   optionsPerQuestion: number;
 };
 
+export type GenerateLearningObjectivesRequest = {
+  text: string;
+};
+
 export type GenerateDiagramRequest = {
   text: string;
   type:
@@ -30,5 +34,9 @@ export type Question = {
 
 export type Answer = {
   text: string;
-  isCorrect: boolean;
+  correct: boolean;
+};
+
+export type LearningObjective = {
+  text: string;
 };

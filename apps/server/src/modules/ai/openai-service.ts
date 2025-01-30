@@ -1,7 +1,13 @@
 import { S } from "fluent-json-schema";
 import OpenAI from "openai";
 import { Env } from "../../constants/env.js";
-import { GenerateDiagramRequest, GenerateQuestionsRequest, Question } from "../../types/question.type.js";
+import {
+  GenerateDiagramRequest,
+  GenerateLearningObjectivesRequest,
+  GenerateQuestionsRequest,
+  LearningObjective,
+  Question,
+} from "../../types/question.type.js";
 import { aiDiagramExample } from "./ai-diagram-example.js";
 import { AiService } from "./ai-service.js";
 
@@ -25,7 +31,7 @@ const generateQuestionsSchema = S.object()
                 S.object()
                   .additionalProperties(false)
                   .prop("text", S.string().required())
-                  .prop("isCorrect", S.boolean().required()),
+                  .prop("correct", S.boolean().required()),
               )
               .required(),
           ),
@@ -34,9 +40,14 @@ const generateQuestionsSchema = S.object()
   )
   .valueOf() as Record<string, unknown>;
 
-const generateMindMapSchema = S.object()
+const generateDiagramSchema = S.object()
   .additionalProperties(false)
   .prop("data", S.string().required())
+  .valueOf() as Record<string, unknown>;
+
+const generateLearningObjectivesSchema = S.object()
+  .additionalProperties(false)
+  .prop("data", S.array().items(S.object().additionalProperties(false).prop("text", S.string().required())).required())
   .valueOf() as Record<string, unknown>;
 
 export class OpenaiService implements AiService {
@@ -88,7 +99,7 @@ export class OpenaiService implements AiService {
           type: "json_schema",
           json_schema: {
             name: "diagram",
-            schema: generateMindMapSchema,
+            schema: generateDiagramSchema,
           },
         },
       });
@@ -96,8 +107,51 @@ export class OpenaiService implements AiService {
       if (!result) return "";
       return JSON.parse(result).data || "";
     } catch (e) {
-      console.error("generateMindMap", e);
+      console.error("generateDiagram", e);
       return "";
+    }
+  }
+
+  public async generateLearningObjectives(request: GenerateLearningObjectivesRequest): Promise<LearningObjective[]> {
+    try {
+      const chatCompletion = await client.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: `As an exceptional, Nobel Prize-winning professor, assist the user in learning the topic by creating a list of learning objectives.
+Example:
+User question: How do I secure user passwords in a web application?
+Learning objectives:
+Introduction to Password Security
+Hashing vs. Encryption: Key Differences
+Common Hashing Algorithms (Argon2, bcrypt, scrypt)
+Salting and Peppering Explained
+Implementing Secure Password Storage in Web Apps
+Password Policies and Best Practices
+Multi-Factor Authentication (MFA) and Alternatives
+Preventing Brute Force and Dictionary Attacks
+Storing and Managing Password Resets Securely
+Future Trends in Password Security`,
+          },
+          { role: "user", content: request.text },
+        ],
+        model: "gpt-4o-mini",
+        temperature: 0,
+        top_p: 0,
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "learning-objectives",
+            schema: generateLearningObjectivesSchema,
+          },
+        },
+      });
+      const result = chatCompletion.choices[0]?.message.content;
+      if (!result) return [];
+      return JSON.parse(result).data || [];
+    } catch (e) {
+      console.error("LearningObjectives", e);
+      return [];
     }
   }
 }
