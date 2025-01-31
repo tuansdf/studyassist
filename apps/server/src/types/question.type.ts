@@ -9,6 +9,11 @@ export type GenerateLearningObjectivesRequest = {
   text: string;
 };
 
+export type GenerateLearningContentRequest = {
+  targetObjective: LearningObjective;
+  learningObjectives: LearningObjective[];
+};
+
 export type GenerateDiagramRequest = {
   text: string;
   type:
@@ -39,4 +44,9 @@ export type Answer = {
 
 export type LearningObjective = {
   text: string;
+};
+
+export type LearningContent = {
+  text: string;
+  citations: string[];
 };

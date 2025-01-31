@@ -17,3 +17,8 @@ aiRouter.post("/learning-objectives", async (c) => {
   const request = await c.req.json();
   return Response.json({ data: await openaiService.generateLearningObjectives(request) });
 });
+
+aiRouter.post("/learning-content", async (c) => {
+  const request = await c.req.json();
+  return Response.json({ data: await openaiService.generateLearningContent(request) });
+});
