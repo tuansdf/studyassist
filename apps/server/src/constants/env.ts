@@ -7,6 +7,8 @@ const schema = z.object({
   JWT_ACCESS_LIFETIME: z.coerce.number().min(1),
   JWT_REFRESH_LIFETIME: z.coerce.number().min(1),
   OPENAI_API_KEY: z.coerce.string().min(1),
+  GEMINI_API_KEY: z.coerce.string().min(1),
+  GEMINI_BASE_URL: z.coerce.string().min(1),
   ENV: z.string().min(1),
 });
 

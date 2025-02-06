@@ -1,4 +1,4 @@
-import { S } from "fluent-json-schema";
+import { Type } from "@sinclair/typebox";
 import OpenAI from "openai";
 import { Env } from "../../constants/env.js";
 import {
@@ -17,55 +17,45 @@ const client = new OpenAI({
   apiKey: Env.OPENAI_API_KEY,
 });
 
-const generateQuestionsSchema = S.object()
-  .additionalProperties(false)
-  .prop(
-    "data",
-    S.array()
-      .items(
-        S.object()
-          .additionalProperties(false)
-          .prop("text", S.string().required())
-          .prop(
-            "answers",
-            S.array()
-              .items(
-                S.object()
-                  .additionalProperties(false)
-                  .prop("text", S.string().required())
-                  .prop("correct", S.boolean().required()),
-              )
-              .required(),
+const generateQuestionsSchema = Type.Object(
+  {
+    data: Type.Array(
+      Type.Object(
+        {
+          text: Type.String(),
+          answers: Type.Array(
+            Type.Object({ text: Type.String(), correct: Type.Boolean() }, { additionalProperties: false }),
           ),
-      )
-      .required(),
-  )
-  .valueOf() as Record<string, unknown>;
+        },
+        { additionalProperties: false },
+      ),
+    ),
+  },
+  { additionalProperties: false },
+);
 
-const generateDiagramSchema = S.object()
-  .additionalProperties(false)
-  .prop("data", S.string().required())
-  .valueOf() as Record<string, unknown>;
+export const generateDiagramSchema = Type.Object(
+  {
+    data: Type.String(),
+  },
+  { additionalProperties: false },
+);
 
-const generateLearningObjectivesSchema = S.object()
-  .additionalProperties(false)
-  .prop("data", S.array().items(S.object().additionalProperties(false).prop("text", S.string().required())).required())
-  .valueOf() as Record<string, unknown>;
+export const generateLearningObjectivesSchema = Type.Object(
+  {
+    data: Type.Array(Type.Object({ text: Type.String() }, { additionalProperties: false })),
+  },
+  { additionalProperties: false },
+);
 
-const generateLearningContentSchema = S.object()
-  .additionalProperties(false)
-  .prop(
-    "data",
-    S.array()
-      .items(
-        S.object()
-          .additionalProperties(false)
-          .prop("text", S.string().required())
-          .prop("citations", S.array().items(S.string())),
-      )
-      .required(),
-  )
-  .valueOf() as Record<string, unknown>;
+export const generateLearningContentSchema = Type.Object(
+  {
+    data: Type.Array(
+      Type.Object({ text: Type.String(), citations: Type.Array(Type.String()) }, { additionalProperties: false }),
+    ),
+  },
+  { additionalProperties: false },
+);
 
 export class OpenaiService implements AiService {
   public async generateQuestions(request: GenerateQuestionsRequest): Promise<Question[]> {
